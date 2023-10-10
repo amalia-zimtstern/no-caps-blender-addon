@@ -1,7 +1,7 @@
 bl_info = {
     "name": "No Caps",
     "author": "diskutabel",
-    "version": (1, 0, 4),
+    "version": (1, 0, 5),
     "blender": (3, 6, 4),
     "location": "View3D > N",
     "description": "Automatically disables Caps Lock",
@@ -23,7 +23,7 @@ class Util:
     
     enabled = False
     
-    disable_caps = 0
+    disable_caps = None
     
     global VK_CAPITAL
     VK_CAPITAL = 0x14
@@ -37,7 +37,7 @@ class Util:
         return ctypes.windll.user32.GetKeyState(VK_CAPITAL)
 
 
-class thread(threading.Thread): 
+class Thread(threading.Thread): 
     def __init__(self, thread_name, thread_ID): 
         threading.Thread.__init__(self) 
         self.thread_name = thread_name 
@@ -52,9 +52,9 @@ class thread(threading.Thread):
                 ctypes.windll.user32.keybd_event(VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0)
 
 
-class MenuePanel(bpy.types.Panel):
+class MenuPanel(bpy.types.Panel):
     bl_label = "NO CAPS"
-    bl_idname = "OBJECT_PT_menue"
+    bl_idname = "OBJECT_PT_menu"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "No Caps"
@@ -75,11 +75,11 @@ class EnableOperator(bpy.types.Operator):
     def execute(self, context):
         
         if not Util.enabled:
-            MenuePanel.bl_label = "No Caps"
-            unregister_class(MenuePanel)
-            register_class(MenuePanel)
+            MenuPanel.bl_label = "No Caps"
+            unregister_class(MenuPanel)
+            register_class(MenuPanel)
             Util.enabled = True
-            Util.disable_caps = thread("disable_caps", 1000)
+            Util.disable_caps = Thread("disable_caps", 1000)
             Util.disable_caps.start()
 
         return {'FINISHED'}
@@ -93,9 +93,9 @@ class DisableOperator(bpy.types.Operator):
     def execute(self, context):
        
         if Util.enabled:
-            MenuePanel.bl_label = "NO CAPS"
-            unregister_class(MenuePanel)
-            register_class(MenuePanel)
+            MenuPanel.bl_label = "NO CAPS"
+            unregister_class(MenuPanel)
+            register_class(MenuPanel)
             Util.enabled = False
             Util.disable_caps.join()
     
@@ -103,7 +103,7 @@ class DisableOperator(bpy.types.Operator):
 
 
 _classes = [
-    MenuePanel,
+    MenuPanel,
     EnableOperator,
     DisableOperator
 ]
